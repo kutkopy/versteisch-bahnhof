@@ -10,7 +10,7 @@ TEST_DATA_LABEL = DATA_PATH + "test.GOLD.csv"
 
 
 def get_tf_idf(train_phrases, test_phrases):
-    tv = TfidfVectorizer(min_df=0.0, max_df=1.0, ngram_range=(1, 2), max_features=2500)
+    tv = TfidfVectorizer(min_df=0.0, max_df=1.0, ngram_range=(1, 2), max_features=2000)
     train_tf_idf_features = tv.fit_transform(train_phrases)
     test_tf_idf_features = tv.transform(test_phrases)
 
@@ -40,8 +40,8 @@ def train_predict_model(classifier, train_features, train_labels, test_features)
 
 def oracle():
     train_data, train_labels, test_data, test_labels = load_data()
-    rfc = RandomForestClassifier(n_jobs=-1)
-    predictions = train_predict_model(rfc, train_data, train_labels, test_data)
+    random_forest_classifier = RandomForestClassifier()
+    predictions = train_predict_model(random_forest_classifier, train_data, train_labels, test_data)
 
     print(classification_report(test_labels, predictions))
 
