@@ -1,7 +1,10 @@
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, precision_score, recall_score, f1_score
+
+import mlflow
+import mlflow.sklearn
 
 DATA_PATH = './data/'
 TRAIN_DATA = DATA_PATH + "train.csv"
@@ -38,12 +41,28 @@ def train_predict_model(classifier, train_features, train_labels, test_features)
     return predictions
 
 
+def get_metrics(y_true, y_pred):
+    precision = precision_score(y_true, y_pred, average="macro")
+    recall = recall_score(y_true, y_pred, average="macro")
+    f1 = f1_score(y_true, y_pred, average="macro")
+
+    return precision, recall, f1
+
+
 def oracle():
     train_data, train_labels, test_data, test_labels = load_data()
-    random_forest_classifier = RandomForestClassifier()
-    predictions = train_predict_model(random_forest_classifier, train_data, train_labels, test_data)
 
-    print(classification_report(test_labels, predictions))
+    with mlflow.start_run():
+        random_forest_classifier = RandomForestClassifier()
+        predictions = train_predict_model(random_forest_classifier, train_data, train_labels, test_data)
+
+        precision, recall, f1 = get_metrics(test_labels, predictions)
+
+        mlflow.log_metric("precision", precision)
+        mlflow.log_metric("recall", recall)
+        mlflow.log_metric("f1", f1)
+
+        mlflow.sklearn.log_model(random_forest_classifier, "model")
 
 
 if __name__ == '__main__':
