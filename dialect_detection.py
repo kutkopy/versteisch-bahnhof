@@ -125,6 +125,6 @@ def predict_dialect():
 
 
 if __name__ == '__main__':
-    train_hyperparameter()
+    train_dialect_hyperparameter()
     #train_dialect()
     #print(predict_dialect()
