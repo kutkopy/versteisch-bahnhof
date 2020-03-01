@@ -1,3 +1,5 @@
+import sys
+
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.ensemble import RandomForestClassifier
@@ -21,12 +23,11 @@ def load_data():
     test_data = pd.read_csv(TEST_DATA)
     test_data_label = pd.read_csv(TEST_DATA_LABEL)
 
-    # TODO Is list needed here?
-    train_phrases = train_data['Text'].values.tolist()
-    test_phrases = test_data['Text'].values.tolist()
+    train_phrases = train_data['Text'].values
+    test_phrases = test_data['Text'].values
 
-    train_labels = train_data['Label'].values.tolist()
-    test_labels = test_data_label['Prediction'].values.tolist()
+    train_labels = train_data['Label'].values
+    test_labels = test_data_label['Prediction'].values
 
     return train_phrases, train_labels, test_phrases, test_labels
 
@@ -54,6 +55,7 @@ def train_dialect():
         random_forest_classifier = RandomForestClassifier(n_estimators=n_estimators)
         pipeline = Pipeline([('tfidf', tfidf_vectorizer), ('clf', random_forest_classifier)])
 
+        print("Training random forest model...")
         pipeline.fit(train_data, train_labels)
         predictions = pipeline.predict(test_data)
 
@@ -92,6 +94,7 @@ def train_dialect_hyperparameter():
         }
 
         search = GridSearchCV(pipeline, param_grid, scoring="precision_macro", cv=3)
+        print("Grid search over random forest models...")
         search.fit(train_data, train_labels)
         predictions = search.predict(test_data)
 
@@ -115,16 +118,21 @@ def train_dialect_hyperparameter():
 
 
 def predict_dialect():
+    input_data = ["ja nei du seisch o", "jo nei du seisch au"]
+    print(f"Input: {input_data}")
     url = "http://127.0.0.1:1234/invocations"
     data = {
-        "columns": ["ja nei du seisch o", "jo nei du seisch au"]
+        "columns": input_data
     }
     headers = {'Content-type': 'application/json', 'format': 'pandas-split'}
     r = requests.post(url, data=json.dumps(data), headers=headers)
-    return r.content
+    print(f"Predictions: {r.content}")
 
 
 if __name__ == '__main__':
-    train_dialect_hyperparameter()
-    #train_dialect()
-    #print(predict_dialect()
+    if len(sys.argv) > 1 and sys.argv[1] == "train":
+        train_dialect()
+    elif len(sys.argv) > 1 and sys.argv[1] == "gridsearch":
+        train_dialect_hyperparameter()
+    else:
+        predict_dialect()
