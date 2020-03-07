@@ -1,0 +1,10 @@
+name: Chuchikaestli
+conda_env: conda.yaml
+entry_points:
+  main:
+    parameters: {}
+    command: "python dialect_detection.py train"
+  gridsearch:
+    parameters: {}
+    command: "python dialect_detection.py gridsearch"
+    
