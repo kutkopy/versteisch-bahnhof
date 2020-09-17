@@ -13,9 +13,9 @@ import mlflow
 import mlflow.sklearn
 
 DATA_PATH = './data/'
-TRAIN_DATA = DATA_PATH + "train.csv"
-TEST_DATA = DATA_PATH + "test.csv"
-TEST_DATA_LABEL = DATA_PATH + "test.GOLD.csv"
+TRAIN_DATA = DATA_PATH + 'train.csv'
+TEST_DATA = DATA_PATH + 'test.csv'
+TEST_DATA_LABEL = DATA_PATH + 'test.GOLD.csv'
 
 
 def load_data():
@@ -34,9 +34,9 @@ def load_data():
 
 def get_metrics(y_true, y_pred):
     accuracy = accuracy_score(y_true, y_pred)
-    precision = precision_score(y_true, y_pred, average="macro")
-    recall = recall_score(y_true, y_pred, average="macro")
-    f1 = f1_score(y_true, y_pred, average="macro")
+    precision = precision_score(y_true, y_pred, average='macro')
+    recall = recall_score(y_true, y_pred, average='macro')
+    f1 = f1_score(y_true, y_pred, average='macro')
 
     return accuracy, precision, recall, f1
 
@@ -55,24 +55,27 @@ def train_dialect():
         random_forest_classifier = RandomForestClassifier(n_estimators=n_estimators)
         pipeline = Pipeline([('tfidf', tfidf_vectorizer), ('clf', random_forest_classifier)])
 
-        print("Training random forest model...")
+        print('Training random forest model...')
         pipeline.fit(train_data, train_labels)
         predictions = pipeline.predict(test_data)
 
+        print('Evaluating the model...')
         accuracy, precision, recall, f1 = get_metrics(test_labels, predictions)
 
-        mlflow.log_param("min_df", min_df)
-        mlflow.log_param("max_df", max_df)
-        mlflow.log_param("ngram_range", ngram_range)
-        mlflow.log_param("max_features", max_features)
-        mlflow.log_param("n_estimators", n_estimators)
+        print(f'precision: {precision:.3f}, recall: {recall:.3f}, f1-score: {f1:.3f}')
 
-        mlflow.log_metric("accuracy", accuracy)
-        mlflow.log_metric("precision", precision)
-        mlflow.log_metric("recall", recall)
-        mlflow.log_metric("f1", f1)
+        mlflow.log_param('min_df', min_df)
+        mlflow.log_param('max_df', max_df)
+        mlflow.log_param('ngram_range', ngram_range)
+        mlflow.log_param('max_features', max_features)
+        mlflow.log_param('n_estimators', n_estimators)
 
-        mlflow.sklearn.log_model(pipeline, "model")
+        mlflow.log_metric('accuracy', accuracy)
+        mlflow.log_metric('precision', precision)
+        mlflow.log_metric('recall', recall)
+        mlflow.log_metric('f1', f1)
+
+        mlflow.sklearn.log_model(pipeline, 'model')
 
 
 def train_dialect_hyperparameter():
@@ -93,46 +96,54 @@ def train_dialect_hyperparameter():
             'clf__n_estimators': [100]
         }
 
-        search = GridSearchCV(pipeline, param_grid, scoring="precision_macro", cv=3)
-        print("Grid search over random forest models...")
+        search = GridSearchCV(pipeline, param_grid, scoring='precision_macro', cv=3)
+        print('Grid search over random forest models...')
         search.fit(train_data, train_labels)
         predictions = search.predict(test_data)
 
+        print('Evaluating the best model...')
         accuracy, precision, recall, f1 = get_metrics(test_labels, predictions)
 
         best_pipeline = search.best_estimator_
         best_params = search.best_params_
+        print(f'best parameters: {best_params}')
 
-        mlflow.log_param("min_df", best_params['tfidf__min_df'])
-        mlflow.log_param("max_df", best_params['tfidf__max_df'])
-        mlflow.log_param("ngram_range", best_params['tfidf__ngram_range'])
-        mlflow.log_param("max_features", best_params['tfidf__max_features'])
-        mlflow.log_param("n_estimators", best_params['clf__n_estimators'])
+        print(f'precision: {precision:.3f}, recall: {recall:.3f}, f1-score: {f1:.3f}')
 
-        mlflow.log_metric("accuracy", accuracy)
-        mlflow.log_metric("precision", precision)
-        mlflow.log_metric("recall", recall)
-        mlflow.log_metric("f1", f1)
+        mlflow.log_param('min_df', best_params['tfidf__min_df'])
+        mlflow.log_param('max_df', best_params['tfidf__max_df'])
+        mlflow.log_param('ngram_range', best_params['tfidf__ngram_range'])
+        mlflow.log_param('max_features', best_params['tfidf__max_features'])
+        mlflow.log_param('n_estimators', best_params['clf__n_estimators'])
 
-        mlflow.sklearn.log_model(best_pipeline, "model")
+        mlflow.log_metric('accuracy', accuracy)
+        mlflow.log_metric('precision', precision)
+        mlflow.log_metric('recall', recall)
+        mlflow.log_metric('f1', f1)
+
+        mlflow.sklearn.log_model(best_pipeline, 'model')
 
 
 def predict_dialect():
-    input_data = ["ja nei du seisch o", "jo nei du seisch au"]
-    print(f"Input: {input_data}")
-    url = "http://127.0.0.1:1234/invocations"
+    input_data = ['ja nei du seisch o', 'jo nei du seisch au']
+    print(f'Input: {input_data}')
+    url = 'http://127.0.0.1:1234/invocations'
     data = {
-        "columns": input_data
+        'columns': input_data
     }
     headers = {'Content-type': 'application/json', 'format': 'pandas-split'}
     r = requests.post(url, data=json.dumps(data), headers=headers)
-    print(f"Predictions: {r.content}")
+    print(f'Predictions: {r.content}')
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1 and sys.argv[1] == "train":
+    if len(sys.argv) != 2 or sys.argv[1] not in ('train', 'gridsearch', 'predict'):
+        print(f'Usage: {sys.argv[0]} (train | gridsearch | predict)')
+        sys.exit(1)
+
+    if sys.argv[1] == 'train':
         train_dialect()
-    elif len(sys.argv) > 1 and sys.argv[1] == "gridsearch":
+    elif sys.argv[1] == 'gridsearch':
         train_dialect_hyperparameter()
-    else:
+    elif sys.argv[1] == 'predict':
         predict_dialect()
