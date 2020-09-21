@@ -112,10 +112,10 @@ if __name__ == '__main__':
         sys.exit(1)
 
     if sys.argv[1] == 'train':
-        print(f"started model training, experiment: {run.info.experiment_id}, run: {run.info.run_id}")
+        print(f"started model training")
         train_dialect()
     elif sys.argv[1] == 'gridsearch':
-        print(f"started grid search, experiment: {run.info.experiment_id}, run: {run.info.run_id}")
+        print(f"started grid search")
         train_dialect_hyperparameter()
     elif sys.argv[1] == 'predict':
         predict_dialect()
