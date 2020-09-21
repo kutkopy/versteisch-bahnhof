@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 
 import pandas as pd
@@ -136,6 +138,9 @@ if __name__ == '__main__':
     if len(sys.argv) != 2 or sys.argv[1] not in ('train', 'gridsearch', 'predict'):
         print(f'Usage: {sys.argv[0]} (train | gridsearch | predict)')
         sys.exit(1)
+
+    mlflow.set_tracking_uri('http://versteish-bahnhof.westeurope.azurecontainer.io:5000')
+    mlflow.set_experiment('dialect-detection')
 
     if sys.argv[1] == 'train':
         with mlflow.start_run() as run:
