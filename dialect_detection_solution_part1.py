@@ -10,6 +10,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, accuracy_score, precision_score, recall_score, f1_score
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
+import mlflow
+import mlflow.sklearn
 
 
 DATA_PATH = './data/'
@@ -63,6 +65,19 @@ def train_dialect():
 
     print(f'precision: {precision:.3f}, recall: {recall:.3f}, f1-score: {f1:.3f}')
 
+    mlflow.log_param('min_df', min_df)
+    mlflow.log_param('max_df', max_df)
+    mlflow.log_param('ngram_range', ngram_range)
+    mlflow.log_param('max_features', max_features)
+    mlflow.log_param('n_estimators', n_estimators)
+
+    mlflow.log_metric('accuracy', accuracy)
+    mlflow.log_metric('precision', precision)
+    mlflow.log_metric('recall', recall)
+    mlflow.log_metric('f1', f1)
+
+    mlflow.sklearn.log_model(pipeline, 'model')
+
 
 def train_dialect_hyperparameter():
     train_data, train_labels, test_data, test_labels = load_data()
@@ -93,6 +108,19 @@ def train_dialect_hyperparameter():
 
     print(f'precision: {precision:.3f}, recall: {recall:.3f}, f1-score: {f1:.3f}')
 
+    mlflow.log_param('min_df', best_params['tfidf__min_df'])
+    mlflow.log_param('max_df', best_params['tfidf__max_df'])
+    mlflow.log_param('ngram_range', best_params['tfidf__ngram_range'])
+    mlflow.log_param('max_features', best_params['tfidf__max_features'])
+    mlflow.log_param('n_estimators', best_params['clf__n_estimators'])
+
+    mlflow.log_metric('accuracy', accuracy)
+    mlflow.log_metric('precision', precision)
+    mlflow.log_metric('recall', recall)
+    mlflow.log_metric('f1', f1)
+
+    mlflow.sklearn.log_model(best_pipeline, 'model')
+
 
 def predict_dialect():
     input_data = ['ja nei du seisch o', 'jo nei du seisch au']
@@ -111,11 +139,16 @@ if __name__ == '__main__':
         print(f'Usage: {sys.argv[0]} (train | gridsearch | predict)')
         sys.exit(1)
 
+    mlflow.set_tracking_uri('http://versteish-bahnhof.westeurope.azurecontainer.io:5000')
+    mlflow.set_experiment('dialect-detection')
+
     if sys.argv[1] == 'train':
-        print(f"started model training, experiment: {run.info.experiment_id}, run: {run.info.run_id}")
-        train_dialect()
+        with mlflow.start_run() as run:
+            print(f"started model training, experiment: {run.info.experiment_id}, run: {run.info.run_id}")
+            train_dialect()
     elif sys.argv[1] == 'gridsearch':
-        print(f"started grid search, experiment: {run.info.experiment_id}, run: {run.info.run_id}")
-        train_dialect_hyperparameter()
+        with mlflow.start_run() as run:
+            print(f"started grid search, experiment: {run.info.experiment_id}, run: {run.info.run_id}")
+            train_dialect_hyperparameter()
     elif sys.argv[1] == 'predict':
         predict_dialect()
