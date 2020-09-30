@@ -1,9 +1,9 @@
-# chuchikaestli
+# versteisch-bahnhof
 
 Find the full description of the hands-on task here: https://tiny.cc/versteisch-bahnhof
 
 
-chuchikaestli is a [Swiss German dialect](https://en.wikipedia.org/wiki/Swiss_German) predictor using TF-IDF vector 
+versteisch-bahnhof is a [Swiss German dialect](https://en.wikipedia.org/wiki/Swiss_German) predictor using TF-IDF vector 
 representations and a Random Forest classifier. 
 
 The evaluation is based on a publicly available Swiss German 
