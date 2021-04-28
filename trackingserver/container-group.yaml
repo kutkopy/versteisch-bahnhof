@@ -33,13 +33,13 @@ properties:
       - port: 443
         protocol: TCP
       image: caddy:latest
-      command: ["caddy", "reverse-proxy", "--from", "versteish-bahnhof.westeurope.azurecontainer.io", "--to", "localhost:5000"]
+      command: ["caddy", "reverse-proxy", "--from", "versteisch-bahnhof.westeurope.azurecontainer.io", "--to", "localhost:5000"]
       resources:
         requests:
           cpu: 0.5
           memoryInGB: 0.5
   ipAddress:
-    dnsNameLabel: versteish-bahnhof
+    dnsNameLabel: versteisch-bahnhof
     ports:
     - port: 80
       protocol: TCP

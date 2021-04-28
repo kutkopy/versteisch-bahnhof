@@ -139,7 +139,7 @@ if __name__ == '__main__':
         print(f'Usage: {sys.argv[0]} (train | gridsearch | predict)')
         sys.exit(1)
 
-    mlflow.set_tracking_uri('http://versteish-bahnhof.westeurope.azurecontainer.io:5000')
+    mlflow.set_tracking_uri('https://versteisch-bahnhof.westeurope.azurecontainer.io')
     mlflow.set_experiment('dialect-detection')
 
     if sys.argv[1] == 'train':
