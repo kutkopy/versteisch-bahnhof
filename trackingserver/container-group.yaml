@@ -1,0 +1,44 @@
+additional_properties: {}
+apiVersion: '2018-10-01'
+identity: null
+location: westeurope
+name: mlflowserver
+properties:
+  containers:
+  - name: mlflowserver
+    properties:
+      environmentVariables:
+      - name: AZURE_STORAGE_ACCESS_KEY
+        value: sG2C5Z+r97caxfiddPDd8kuFsfFDNw4sgGxGJKZgO5LAqODILCkyZkNLJRXgDEUbEUyQgSHH8sLFqAmBw9Rvyw==
+      - name: MLFLOW_SERVER_FILE_STORE
+        value: /mnt/azfiles/mlruns
+      - name: MLFLOW_SERVER_DEFAULT_ARTIFACT_ROOT
+        value: wasbs://acicontainer@bahnhof21566.blob.core.windows.net/mlartefacts
+      image: posedge/mlflowserver:latest
+      ports:
+      - port: 5000
+        protocol: TCP
+      resources:
+        requests:
+          cpu: 1.0
+          memoryInGB: 4.0
+      volumeMounts:
+      - mountPath: /mnt/azfiles
+        name: azurefile
+  ipAddress:
+    dnsNameLabel: versteish-bahnhof
+    fqdn: versteish-bahnhof.westeurope.azurecontainer.io
+    ip: 20.73.32.68
+    ports:
+    - port: 5000
+      protocol: TCP
+    type: Public
+  osType: Linux
+  restartPolicy: Always
+  volumes:
+  - azureFile:
+      shareName: acishare
+      storageAccountName: bahnhof21566
+    name: azurefile
+tags: {}
+type: Microsoft.ContainerInstance/containerGroups
