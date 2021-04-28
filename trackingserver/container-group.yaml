@@ -36,8 +36,8 @@ properties:
       command: ["caddy", "reverse-proxy", "--from", "versteish-bahnhof.westeurope.azurecontainer.io", "--to", "localhost:5000"]
       resources:
         requests:
-          cpu: 1.0
-          memoryInGB: 1.0
+          cpu: 0.5
+          memoryInGB: 0.5
   ipAddress:
     dnsNameLabel: versteish-bahnhof
     ports:
