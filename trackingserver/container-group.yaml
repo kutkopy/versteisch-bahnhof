@@ -15,9 +15,6 @@ properties:
       - name: MLFLOW_SERVER_DEFAULT_ARTIFACT_ROOT
         value: wasbs://acicontainer@bahnhof21566.blob.core.windows.net/mlartefacts
       image: posedge/mlflowserver:latest
-      ports:
-      - port: 5000
-        protocol: TCP
       resources:
         requests:
           cpu: 1.0
@@ -25,12 +22,28 @@ properties:
       volumeMounts:
       - mountPath: /mnt/azfiles
         name: azurefile
+  - name: caddy
+    properties:
+      volumeMounts:
+      - mountPath: /data
+        name: caddyfile
+      ports:
+      - port: 80
+        protocol: TCP
+      - port: 443
+        protocol: TCP
+      image: caddy:latest
+      command: ["caddy", "reverse-proxy", "--from", "versteish-bahnhof.westeurope.azurecontainer.io", "--to", "localhost:5000"]
+      resources:
+        requests:
+          cpu: 1.0
+          memoryInGB: 1.0
   ipAddress:
     dnsNameLabel: versteish-bahnhof
-    fqdn: versteish-bahnhof.westeurope.azurecontainer.io
-    ip: 20.73.32.68
     ports:
-    - port: 5000
+    - port: 80
+      protocol: TCP
+    - port: 443
       protocol: TCP
     type: Public
   osType: Linux
@@ -39,6 +52,12 @@ properties:
   - azureFile:
       shareName: acishare
       storageAccountName: bahnhof21566
+      storageAccountKey: sG2C5Z+r97caxfiddPDd8kuFsfFDNw4sgGxGJKZgO5LAqODILCkyZkNLJRXgDEUbEUyQgSHH8sLFqAmBw9Rvyw==
     name: azurefile
+  - azureFile:
+      shareName: acicaddy
+      storageAccountName: bahnhof21566
+      storageAccountKey: sG2C5Z+r97caxfiddPDd8kuFsfFDNw4sgGxGJKZgO5LAqODILCkyZkNLJRXgDEUbEUyQgSHH8sLFqAmBw9Rvyw==
+    name: caddyfile
 tags: {}
 type: Microsoft.ContainerInstance/containerGroups
