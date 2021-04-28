@@ -12,7 +12,7 @@ set -o nounset
 
 # Resource Group name and location
 RG_NAME=versteisch_bahnhof
-RG_LOCATION=eu-west
+RG_LOCATION=westeurope
 
 ACI_IMAGE=posedge/mlflowserver:latest
 ACI_CONTAINER_NAME=mlflowserver
